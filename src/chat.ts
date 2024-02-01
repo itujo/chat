@@ -5,21 +5,38 @@ const openai = new OpenAI({
   apiKey: envServerSchema.OPENAI_API_KEY,
 });
 
-export async function sendMessage(message: string): Promise<string | null> {
-  console.log(message);
-
+async function createCompletion(
+  systemMessage: string,
+  userMessage: string
+): Promise<string> {
   const completion = await openai.chat.completions.create({
     messages: [
-      { role: 'system', content: 'Você é um assistente útil.' },
-      { role: 'user', content: message },
+      { role: 'system', content: systemMessage },
+      { role: 'user', content: userMessage },
     ],
-    // model: 'gpt-4',
-    model: 'gpt-3.5-turbo',
+    model: envServerSchema.OPENAI_MODEL,
   });
 
-  console.log({ completion });
+  return (
+    completion.choices[0].message.content ??
+    'não foi possível se conectar ao servidor'
+  );
+}
 
-  console.log(completion.choices[0]);
+export function sendMessage(message: string): Promise<string> {
+  return createCompletion('Você é um assistente útil.', message);
+}
 
-  return completion.choices[0].message.content;
+export function sendCaipiraMessage(message: string): Promise<string> {
+  return createCompletion(
+    'Você é um caipira e responde como um caipira',
+    message
+  );
+}
+
+export function sendBaianoMessage(message: string): Promise<string> {
+  return createCompletion(
+    'Você é um baiano arretado e responde como um baiano arretado',
+    message
+  );
 }

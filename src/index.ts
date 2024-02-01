@@ -1,45 +1,61 @@
 import * as venom from 'venom-bot';
-import { sendMessage } from './chat';
+import { sendBaianoMessage, sendCaipiraMessage, sendMessage } from './chat';
+
+async function handleCommand(
+  client: venom.Whatsapp,
+  command: string,
+  message: venom.Message
+) {
+  const msgContent = message.body.split(' ').slice(1).join(' ');
+  let response = '';
+
+  switch (command) {
+    case '/bot':
+      response = `sim, eu sou um papagaio e você disse: ${message.body}`;
+      break;
+    case '/chat':
+      response = await sendMessage(msgContent);
+      break;
+    case '/caipira':
+      response = await sendCaipiraMessage(msgContent);
+      break;
+    case '/baiano':
+      response = await sendBaianoMessage(msgContent);
+      break;
+    default:
+      console.log('Comando não reconhecido.');
+      return;
+  }
+
+  const sender = command.replace('/', '');
+
+  sendResponse(client, message.from, response, sender);
+}
+
+function sendResponse(
+  client: venom.Whatsapp,
+  to: string,
+  response: string,
+  sender: string
+) {
+  client
+    .sendText(to, `[${sender}]: ${response}`)
+    .then((result) => console.log('Result: ', result))
+    .catch((erro) => console.error('Error when sending: ', erro));
+}
 
 function start(client: venom.Whatsapp) {
-  client.onMessage(async (message) => {
-    if (message.body.includes('/bot') && message.isGroupMsg === false) {
-      client
-        .sendText(
-          message.from,
-          `[bot]: sim, eu sou um papagaio e voce disse: ${message.body}`
-        )
-        .then((result) => {
-          console.log('Result: ', result); //return object success
-        })
-        .catch((erro) => {
-          console.error('Error when sending: ', erro); //return object error
-        });
-    }
-    if (message.body.includes('/chat') && message.isGroupMsg === false) {
-      const msg = message.body.replace('/chat ', '');
-      console.log('sending message to chat', msg);
-
-      const response = await sendMessage(msg);
-      console.log('chat response', response);
-
-      client
-        .sendText(message.from, `[chat]: ${response}`)
-        .then((result) => {
-          console.log('Result: ', result); //return object success
-        })
-        .catch((erro) => {
-          console.error('Error when sending: ', erro); //return object error
-        });
+  client.onAnyMessage(async (message) => {
+    if (!message.isGroupMsg && message.body.startsWith('/')) {
+      const command = message.body.split(' ')[0];
+      await handleCommand(client, command, message);
     }
   });
 }
 
 venom
   .create({
-    session: 'chat-app-4', //name of session
+    session: 'chat-app-4',
   })
   .then((client) => start(client))
-  .catch((erro) => {
-    console.log(erro);
-  });
+  .catch((erro) => console.log(erro));
