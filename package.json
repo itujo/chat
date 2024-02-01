@@ -2,11 +2,11 @@
   "name": "chat",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ts-node src/index.ts",
-    "start": "node index.js",
+    "dev": "nodemon --exec ts-node src/app.ts",
+    "start": "node app.js",
     "build": "tsc"
   },
   "keywords": [],
@@ -15,6 +15,7 @@
   "dependencies": {
     "dotenv": "^16.4.1",
     "openai": "^4.26.0",
+    "pino": "^8.18.0",
     "venom-bot": "^5.0.21",
     "zod": "^3.22.4"
   },
@@ -23,6 +24,7 @@
     "@tsconfig/recommended": "^1.0.3",
     "@types/node": "^20.11.15",
     "nodemon": "^3.0.3",
+    "pino-pretty": "^10.3.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
